@@ -17,6 +17,6 @@ Plans
 =====
 
 - Further optimize performance.
-  - Scale down JPEG rendering. Currently sending full HD (1920x1080) at ~250Kb per frame. By scaling image down server side might be able to reduce this by a 90%.
+  - Scale down JPEG rendering. Currently sending full HD (1920x1080) at ~250Kb per frame. By scaling image down server side might be able to reduce this by a 90%. Would be nice to use nodejs as a proxy for vnc traffic and do some kind of rendering on the client that is more efficent than sending full sized images for every frame. 
   - Send mouse move data more efficently. Instead of spamming the node proxy with as many events the client can send, send socket.io events after gotten a response on move.
 - Support more [rfb2](https://github.com/sidorares/node-rfb2) events. Including copy and paiste on the client.
