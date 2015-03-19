@@ -10,7 +10,7 @@ Changes
   - **Mouse move:** Follow the mouse around the canvas
   - **Right Click:** Right click the canvas to send right click to VNC
   - **Click and drag:** Right or left click drag sent to the VNC client
-- Switched to [node-jpeg](https://github.com/pkrumins/node-jpeg) for rendering, 50% increased performance. Quality sufferes but still better and more reliable than Meraki!
+- Switched to [node-jpeg](https://github.com/pkrumins/node-jpeg) for rendering, 50% increased performance. Quality sufferes but still better quality and more reliable than Meraki has been!
 
 
 Plans
