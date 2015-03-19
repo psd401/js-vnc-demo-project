@@ -24,4 +24,4 @@ Plans
 - Support more [rfb2](https://github.com/sidorares/node-rfb2) events and authentication. Including copy and paste on the client.
 - Make sure multiple monitors are supported and work well.
 - More mouse events
-  - Not sure how at the moment, but mouse scrolling needs to be passed through as well.
+  - Not sure how at the moment, but mouse scrolling needs to be passed through as well. Understand how the client will read the event, but not sure how rfb2 will send to VNC.
