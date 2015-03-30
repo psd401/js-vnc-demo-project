@@ -18,7 +18,7 @@
       self = this;
     img.width = rect.width;
     img.height = rect.height;
-    img.src = 'data:image/png;base64,' + rect.image;
+    img.src = 'data:image/png;base64,' + String.fromCharCode.apply(null, new Uint16Array(rect.image));
     img.onload = function () {
       self._context.drawImage(this, rect.x, rect.y, rect.width, rect.height);
     };
@@ -110,9 +110,9 @@
     });
     this._socket.on('frame', function (frame) {
       self._screen.drawRect(frame);
-	console.log(frame);
+	//console.log(frame);
       sizeAspectRatio = self._screen.getCanvas().width / $("#screen").width();
- //     console.log(sizeAspectRatio);
+      console.log(sizeAspectRatio);
     });
 
     this._socket.on('rect', function(rect) {

@@ -17,6 +17,32 @@ function createRfbConnection(config, socket) {
   return r;
 }
 
+
+var getUTF8Size = function( str ) {
+  var sizeInBytes = str.split('')
+    .map(function( ch ) {
+      return ch.charCodeAt(0);
+    }).map(function( uchar ) {
+      // The reason for this is explained later in
+      // the section “An Aside on Text Encodings”
+      return uchar < 128 ? 1 : 2;
+    }).reduce(function( curr, next ) {
+      return curr + next;
+    });
+ 
+  return sizeInBytes;
+};
+
+var convertToByteArray = function(str) {
+	var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+	var bufView = new Uint16Array(buf);
+	for (var i=0, strLen=str.length; i &lt; strLen; i++) {
+    		bufView[i] = str.charCodeAt(i);
+  	}
+  	return buf;
+}
+
+
 function addEventHandlers(r, socket) {
   r.on('connect', function () {
     console.log("Connected to RFB");
@@ -62,7 +88,7 @@ function handleFrame(socket, rect, r) {
     	  y: rect.y,
    	  width: rect.width,
    	  height: rect.height,
-          image: png.toString('base64')
+          image: convertToByteArray(png.toString('base64'))
     //      rgb: rgb
   	});
   });
