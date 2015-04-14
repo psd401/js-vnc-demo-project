@@ -5,7 +5,15 @@ var rfb = require('rfb2'),
  // Png = require('./node_modules/node-png/build/Release/png').Png,
   Png = require('./node_modules/node-jpeg/build/Release/jpeg').Jpeg,
   connect = require('connect'),
+  fs = require('fs'),
+  path = require('path'),
+  express = require('express'),
+  app = express(),
+  http = require('http').Server(app),
   clients = [];
+ // TextEncoder = require('text-encoding').TextEncoder;
+
+
 
 function createRfbConnection(config, socket) {
   var r = rfb.createConnection({
@@ -17,30 +25,6 @@ function createRfbConnection(config, socket) {
   return r;
 }
 
-
-var getUTF8Size = function( str ) {
-  var sizeInBytes = str.split('')
-    .map(function( ch ) {
-      return ch.charCodeAt(0);
-    }).map(function( uchar ) {
-      // The reason for this is explained later in
-      // the section “An Aside on Text Encodings”
-      return uchar < 128 ? 1 : 2;
-    }).reduce(function( curr, next ) {
-      return curr + next;
-    });
- 
-  return sizeInBytes;
-};
-
-var convertToByteArray = function(str) {
-	var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-	var bufView = new Uint16Array(buf);
-	for (var i=0, strLen=str.length; i &lt; strLen; i++) {
-    		bufView[i] = str.charCodeAt(i);
-  	}
-  	return buf;
-}
 
 
 function addEventHandlers(r, socket) {
@@ -79,18 +63,22 @@ function handleFrame(socket, rect, r) {
     rgb[offset++] = rect.data[i + 1];
     rgb[offset++] = rect.data[i];
   }
-
+  
   var image = new Png(rgb, r.width, r.height, 'rgb');
+  
+ //fs.writeFileSync('test.jpg', image.encodeSync().toString('binary'), 'binary');
+  
   image.encode(function(png, dms){
-  //console.log("Emmitting frame");
+ // console.log("Emmitting frame");
+        fs.writeFileSync('static/view.jpg', png.toString('binary'), 'binary');
   	socket.emit('frame', {
   	  x: rect.x,
     	  y: rect.y,
    	  width: rect.width,
    	  height: rect.height,
-          image: convertToByteArray(png.toString('base64'))
-    //      rgb: rgb
-  	});
+ //         image: TextEncoder("utf-8").encode(png.toString('base64')) //      rgb: rgb
+	//  image: png.toString('base64')
+	});
   });
 }
 
