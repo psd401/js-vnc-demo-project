@@ -1,6 +1,6 @@
 (function () {
   var Config = {
-      URL: 'http://localhost:8091',
+      URL: 'http://10.0.0.185:8091',
       width: 0,
       height: 0
     },
@@ -50,6 +50,10 @@
     }, false);
 
   };
+  
+  Screen.prototype.removeMouseHandler = function (cb) {
+	this._canvas.removeEventListener('mousedown');
+  };
 
   Screen.prototype.addKeyboardHandlers = function (cb) {
     document.addEventListener('keydown', function (e) {
@@ -93,7 +97,7 @@
     this._socket = io.connect(Config.URL);
     this._socket.emit('init', {
       host: config.host,
-      port: config.port,
+      port: '5900',
       password: config.password
     });
     this._addHandlers(config.callback);
@@ -115,8 +119,8 @@
       console.log(sizeAspectRatio);
     });
 
-    this._socket.on('rect', function(rect) {
-	console.log(rect);
+    this._socket.on('error', function(error) {
+	console.log(error);
     });
   };
 
@@ -133,7 +137,8 @@
       client = new Client(screen);
     client.connect({
       host: document.getElementById('host').value,
-      port: parseInt(document.getElementById('port').value, 10),
+      //port: parseInt(document.getElementById('port').value, 10),
+      port: '5900',
       password: document.getElementById('password').value,
       callback: function () {
         var form = document.getElementById('form-wrapper');

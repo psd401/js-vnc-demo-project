@@ -38,7 +38,8 @@
     -moz-transition: opacity 1s;
     transition: opacity 1s;
     opacity: 0;
-    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
     z-index: -1;
 }
 

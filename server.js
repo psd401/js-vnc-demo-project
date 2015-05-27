@@ -3,8 +3,11 @@ var rfb = require('rfb2'),
   socketIoPort = 8091,
   socketio = require('socket.io').listen(socketIoPort, { log: false }),
  // Png = require('./node_modules/node-png/build/Release/png').Png,
+  //Png = require('./node_modules/node-jpeg/build/Release/jpeg').DynamicJpegStack,
   Png = require('./node_modules/node-jpeg/build/Release/jpeg').Jpeg,
   connect = require('connect'),
+  sharp = require('sharp'),
+  util = require('util'),
   clients = [];
 
 function createRfbConnection(config, socket) {
@@ -16,32 +19,6 @@ function createRfbConnection(config, socket) {
   addEventHandlers(r, socket);
   return r;
 }
-
-
-var getUTF8Size = function( str ) {
-  var sizeInBytes = str.split('')
-    .map(function( ch ) {
-      return ch.charCodeAt(0);
-    }).map(function( uchar ) {
-      // The reason for this is explained later in
-      // the section “An Aside on Text Encodings”
-      return uchar < 128 ? 1 : 2;
-    }).reduce(function( curr, next ) {
-      return curr + next;
-    });
- 
-  return sizeInBytes;
-};
-
-var convertToByteArray = function(str) {
-	var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-	var bufView = new Uint16Array(buf);
-	for (var i=0, strLen=str.length; i &lt; strLen; i++) {
-    		bufView[i] = str.charCodeAt(i);
-  	}
-  	return buf;
-}
-
 
 function addEventHandlers(r, socket) {
   r.on('connect', function () {
@@ -57,21 +34,39 @@ function addEventHandlers(r, socket) {
   });
 
   r.on('rect', function (rect) {
+    //r.requestUpdate(true, 0, 0, r.width, r.height);
     handleFrame(socket, rect, r);
-    r.requestUpdate(false, 0, 0, r.width, r.height);
+    r.requestUpdate(true, 0, 0, r.width, r.height);
+  });
+  r.on("Frame", function(frame) {
+	console.log("Testing works");
   });
 
-  r.on('data', function(data){
-//	console.log("Got some Data!");
+  r.on("end", function(close) {
+  	console.log("RFB CLOSED");
+  	console.log(close);
+	socket.emit('close', close);
   });
+
+  r.on("error", function(error) {
+	console.log("RFB ERROR");
+	console.log(error);
+	socket.emit('error', {error: error});
+	r.end();
+  });
+
+  r.on('bell' console.log.bind(null, 'Bell!!'));
 
 }
+
+//var image = new Png('rgb');
 
 function handleFrame(socket, rect, r) {
  // socket.emit('rect', rect);
 
- 
-  var rgb = new Buffer(rect.width * rect.height * 3, 'binary'),
+ //console.log("handling frame", rect);
+ if(rect.encoding == 0){
+   var rgb = new Buffer(rect.width * rect.height * 3, 'binary'),
     offset = 0;
 
   for (var i = 0; i < rect.data.length; i += 4) {
@@ -79,10 +74,18 @@ function handleFrame(socket, rect, r) {
     rgb[offset++] = rect.data[i + 1];
     rgb[offset++] = rect.data[i];
   }
+  
+  //if(r.width == rect.width && r.height == rect.height) {
+  	var image = new Png(rgb, rect.width, rect.height, 'rgb');
+  //} else {
+//	image = 
+   //	image.setBackground(rgb, r.width, r.height);
+  //}
+  //image.push(rgb, rect.x, rect.y, rect.width, rect.height);
 
-  var image = new Png(rgb, r.width, r.height, 'rgb');
   image.encode(function(png, dms){
   //console.log("Emmitting frame");
+        //console.log(util.inspect(sharp(png)));
   	socket.emit('frame', {
   	  x: rect.x,
     	  y: rect.y,
@@ -91,13 +94,16 @@ function handleFrame(socket, rect, r) {
           image: convertToByteArray(png.toString('base64'))
     //      rgb: rgb
   	});
+	//r.requestUpdate(true, 0, 0, r.width, r.height);
   });
+  }
 }
 
 function disconnectClient(socket) {
   clients.forEach(function (pair) {
     if (pair.socket === socket) {
       pair.rfb.end();
+      console.log("RFB Ended");
     }
   });
   clients = clients.filter(function (pair) {
@@ -113,7 +119,6 @@ socketio.sockets.on('connection', function (socket) {
     socket.on('mouse', function (evnt) {
  //     console.log(evnt.x);
       r.pointerEvent(evnt.x, evnt.y, evnt.button);
-	
     });
     socket.on('keyboard', function (evnt) {
       r.keyEvent(evnt.keyCode, evnt.isDown);
