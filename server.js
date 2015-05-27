@@ -57,6 +57,9 @@ function addEventHandlers(r, socket) {
 	socket.emit('error', {error: error});
 	r.end();
   });
+
+  r.on('bell' console.log.bind(null, 'Bell!!'));
+
 }
 
 //var image = new Png('rgb');
