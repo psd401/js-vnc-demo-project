@@ -27,8 +27,10 @@
   };
 
   Screen.prototype.addMouseHandler = function (cb) {
+    console.log(this);
     this._canvas.addEventListener('mousedown', function (e) {
       cb.call(null, e.layerX * sizeAspectRatio, e.layerY * sizeAspectRatio, 1);
+      
       e.preventDefault();
     }, false);
 
