@@ -91,7 +91,7 @@ function handleFrame(socket, rect, r) {
     	  y: rect.y,
    	  width: rect.width,
    	  height: rect.height,
-          image: convertToByteArray(png.toString('base64'))
+          image: png.toString('base64')
     //      rgb: rgb
   	});
 	//r.requestUpdate(true, 0, 0, r.width, r.height);
