@@ -119,6 +119,8 @@ socketio.sockets.on('connection', function (socket) {
     socket.on('mouse', function (evnt) {
       //     console.log(evnt.x);
       r.pointerEvent(evnt.x, evnt.y, evnt.button);
+    });
+    socket.on('refresh', function (){
       r.requestUpdate(false, 0, 0, r.width, r.height);
     });
     socket.on('keyboard', function (evnt) {
