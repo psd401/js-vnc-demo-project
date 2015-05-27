@@ -18,7 +18,7 @@
       self = this;
     img.width = rect.width;
     img.height = rect.height;
-    img.src = 'data:image/png;base64,' + String.fromCharCode.apply(null, new Uint16Array(rect.image));
+    img.src = 'data:image/png;base64,' + rect.image;
     img.onload = function () {
       self._context.drawImage(this, rect.x, rect.y, rect.width, rect.height);
     };
