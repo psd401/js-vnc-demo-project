@@ -55,7 +55,7 @@ function addEventHandlers(r, socket) {
 	r.end();
   });
 
-  r.on('bell' console.log.bind(null, 'Bell!!'));
+  r.on('bell', console.log.bind(null, 'Bell!!'));
 
 }
 
