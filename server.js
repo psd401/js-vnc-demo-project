@@ -2,7 +2,7 @@ var rfb = require('rfb2'),
   port = 8090,
   socketIoPort = 8091,
   socketio = require('socket.io').listen(socketIoPort, { log: false }),
- // Png = require('./node_modules/node-png/build/Release/png').Png,
+  // Png = require('./node_modules/node-png/build/Release/png').Png,
   //Png = require('./node_modules/node-jpeg/build/Release/jpeg').DynamicJpegStack,
   Png = require('./node_modules/node-jpeg/build/Release/jpeg').Jpeg,
   connect = require('connect'),
@@ -38,21 +38,21 @@ function addEventHandlers(r, socket) {
     handleFrame(socket, rect, r);
     r.requestUpdate(true, 0, 0, r.width, r.height);
   });
-  r.on("Frame", function(frame) {
-	console.log("Testing works");
+  r.on("Frame", function (frame) {
+    console.log("Testing works");
   });
 
-  r.on("end", function(close) {
-  	console.log("RFB CLOSED");
-  	console.log(close);
-	socket.emit('close', close);
+  r.on("end", function (close) {
+    console.log("RFB CLOSED");
+    console.log(close);
+    socket.emit('close', close);
   });
 
-  r.on("error", function(error) {
-	console.log("RFB ERROR");
-	console.log(error);
-	socket.emit('error', {error: error});
-	r.end();
+  r.on("error", function (error) {
+    console.log("RFB ERROR");
+    console.log(error);
+    socket.emit('error', { error: error });
+    r.end();
   });
 
   r.on('bell', console.log.bind(null, 'Bell!!'));
@@ -62,40 +62,40 @@ function addEventHandlers(r, socket) {
 //var image = new Png('rgb');
 
 function handleFrame(socket, rect, r) {
- // socket.emit('rect', rect);
+  // socket.emit('rect', rect);
 
- //console.log("handling frame", rect);
- if(rect.encoding == 0){
-   var rgb = new Buffer(rect.width * rect.height * 3, 'binary'),
-    offset = 0;
+  //console.log("handling frame", rect);
+  if (rect.encoding == 0) {
+    var rgb = new Buffer(rect.width * rect.height * 3, 'binary'),
+      offset = 0;
 
-  for (var i = 0; i < rect.data.length; i += 4) {
-    rgb[offset++] = rect.data[i + 2];
-    rgb[offset++] = rect.data[i + 1];
-    rgb[offset++] = rect.data[i];
-  }
+    for (var i = 0; i < rect.data.length; i += 4) {
+      rgb[offset++] = rect.data[i + 2];
+      rgb[offset++] = rect.data[i + 1];
+      rgb[offset++] = rect.data[i];
+    }
   
-  //if(r.width == rect.width && r.height == rect.height) {
-  	var image = new Png(rgb, rect.width, rect.height, 'rgb');
-  //} else {
-//	image = 
-   //	image.setBackground(rgb, r.width, r.height);
-  //}
-  //image.push(rgb, rect.x, rect.y, rect.width, rect.height);
+    //if(r.width == rect.width && r.height == rect.height) {
+    var image = new Png(rgb, rect.width, rect.height, 'rgb');
+    //} else {
+    //	image = 
+    //	image.setBackground(rgb, r.width, r.height);
+    //}
+    //image.push(rgb, rect.x, rect.y, rect.width, rect.height);
 
-  image.encode(function(png, dms){
-  //console.log("Emmitting frame");
-        //console.log(util.inspect(sharp(png)));
-  	socket.emit('frame', {
-  	  x: rect.x,
-    	  y: rect.y,
-   	  width: rect.width,
-   	  height: rect.height,
-          image: png.toString('base64')
-    //      rgb: rgb
-  	});
-	//r.requestUpdate(true, 0, 0, r.width, r.height);
-  });
+    image.encode(function (png, dms) {
+      //console.log("Emmitting frame");
+      //console.log(util.inspect(sharp(png)));
+      socket.emit('frame', {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+        image: png.toString('base64')
+        //      rgb: rgb
+      });
+      //r.requestUpdate(true, 0, 0, r.width, r.height);
+    });
   }
 }
 
@@ -117,8 +117,9 @@ socketio.sockets.on('connection', function (socket) {
   socket.on('init', function (config) {
     var r = createRfbConnection(config, socket);
     socket.on('mouse', function (evnt) {
- //     console.log(evnt.x);
+      //     console.log(evnt.x);
       r.pointerEvent(evnt.x, evnt.y, evnt.button);
+      r.requestUpdate(false, 0, 0, r.width, r.height);
     });
     socket.on('keyboard', function (evnt) {
       r.keyEvent(evnt.keyCode, evnt.isDown);

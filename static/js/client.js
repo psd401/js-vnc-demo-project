@@ -11,6 +11,7 @@
   function Screen(canvas) {
     this._canvas = canvas;
     this._context = canvas.getContext('2d');
+    
   }
 
   Screen.prototype.drawRect = function (rect) {
@@ -52,7 +53,7 @@
   };
   
   Screen.prototype.removeMouseHandler = function (cb) {
-	this._canvas.removeEventListener('mousedown');
+	  this._canvas.removeEventListener('mousedown');
   };
 
   Screen.prototype.addKeyboardHandlers = function (cb) {
